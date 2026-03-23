@@ -67,6 +67,3 @@ Run `npm run build` or `ng build` to build the project. The build artifacts will
 
 Run `npm run test` or `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## 📄 License
-
-This project is private and proprietary.
