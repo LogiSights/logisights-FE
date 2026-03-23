@@ -1,0 +1,58 @@
+// Import shared auth layout styles from login
+@import '../login/login.component.scss';
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  .flex-1 { flex: 1; }
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
+}
+
+.role-selector {
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  label { font-weight: 500; font-size: 0.95rem; color: var(--text); }
+
+  .role-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+
+    .role-card {
+      border: 1px solid rgba(26,107,255,0.2);
+      border-radius: var(--border-radius-element);
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      background: var(--white);
+      color: var(--muted);
+      text-align: center;
+
+      span { font-size: 0.85rem; font-weight: 500; }
+      mat-icon { margin: 0; }
+
+      &:hover {
+        background: rgba(26,107,255,0.05);
+        border-color: rgba(26,107,255,0.4);
+      }
+
+      &.selected {
+        background: rgba(26,107,255,0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 4px 12px rgba(26,107,255,0.15);
+      }
+    }
+  }
+}

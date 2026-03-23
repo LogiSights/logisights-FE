@@ -1,0 +1,148 @@
+<div class="dashboard-root">
+  
+  <div class="dashboard-main">
+    <app-navbar></app-navbar>
+
+    <div class="dashboard-content">
+      <div class="main-column">
+        
+        <!-- Top Stats Row -->
+        <div class="stats-row stagger-1">
+          <app-stat-card title="Total Parcels Sent" [value]="342" icon="inventory_2" [change]="8"></app-stat-card>
+          <app-stat-card title="In Transit" [value]="12" icon="local_shipping" [change]="-2"></app-stat-card>
+          <app-stat-card title="Delivered today" [value]="45" icon="check_circle" [change]="15"></app-stat-card>
+          <app-stat-card title="Pending Pickup" [value]="8" icon="storefront" [change]="2"></app-stat-card>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Live Tracking Panel -->
+          <div class="tracking-panel glass-card stagger-2">
+            <h2 class="section-title sora-font">Live Tracking: <span class="tracking-id">{{ activeParcel?.id || 'No active parcel' }}</span></h2>
+            <div class="timeline-container" *ngIf="activeParcel">
+              <div class="timeline-step" *ngFor="let step of trackingSteps; let i = index" 
+                   [class.completed]="i < currentTrackingStep" 
+                   [class.active]="i === currentTrackingStep">
+                <div class="step-icon">
+                  <mat-icon *ngIf="i < currentTrackingStep">check</mat-icon>
+                  <mat-icon *ngIf="i === currentTrackingStep">local_shipping</mat-icon>
+                </div>
+                <div class="step-label">{{ step }}</div>
+              </div>
+            </div>
+            <div class="tracking-details">
+              <div><mat-icon>event</mat-icon> Est: Today, 3:00 PM</div>
+              <div><mat-icon>person</mat-icon> Driver: Peter K.</div>
+              <div><mat-icon>place</mat-icon> Approaching Westlands</div>
+            </div>
+          </div>
+
+          <!-- Send Parcel Form -->
+          <div class="send-parcel-card glass-card stagger-3">
+            <h2 class="section-title sora-font">Send a Parcel</h2>
+            
+            <div class="wizard-header">
+              <div class="progress-bar">
+                <div class="progress" [style.width]="((currentStep - 1) / 2) * 100 + '%'"></div>
+              </div>
+              <div class="steps-indicator">
+                <span [class.active]="currentStep === 1">Parcel Info</span>
+                <span [class.active]="currentStep === 2">Recipient</span>
+                <span [class.active]="currentStep === 3">Review</span>
+              </div>
+            </div>
+
+            <form [formGroup]="parcelForm" class="wizard-body">
+              <ng-container *ngIf="currentStep === 1">
+                <div class="form-group slide-in">
+                  <label>Weight (kg)</label>
+                  <input type="number" formControlName="weight" class="input-glow" placeholder="1 kg">
+                </div>
+                <div class="form-group slide-in">
+                  <label>Package Type</label>
+                  <select formControlName="type" class="input-glow">
+                    <option value="Standard">Standard Package</option>
+                    <option value="Fragile">Fragile</option>
+                    <option value="Document">Document</option>
+                  </select>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="currentStep === 2">
+                <div class="form-row slide-in">
+                  <div class="form-group flex-1">
+                    <label>Recipient Name</label>
+                    <input type="text" formControlName="recipientName" class="input-glow">
+                  </div>
+                  <div class="form-group flex-1">
+                    <label>Phone (+254)</label>
+                    <input type="tel" formControlName="recipientPhone" class="input-glow">
+                  </div>
+                </div>
+                <div class="form-group slide-in">
+                  <label>Destination City</label>
+                  <input type="text" formControlName="city" class="input-glow" placeholder="e.g. Nairobi">
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="currentStep === 3">
+                <div class="review-step slide-in">
+                  <div class="review-item"><span>Weight:</span> <strong>{{ parcelForm.value.weight }} kg</strong></div>
+                  <div class="review-item"><span>To:</span> <strong>{{ parcelForm.value.recipientName }} ({{ parcelForm.value.city }})</strong></div>
+                  <div class="review-item total"><span>Est. Cost:</span> <strong>Ksh {{ getCostEstimate() }}</strong></div>
+                </div>
+              </ng-container>
+
+              <div class="wizard-footer">
+                <button type="button" class="icon-btn hover-lift" (click)="prevStep()" [disabled]="currentStep === 1">
+                  <mat-icon>arrow_back</mat-icon> Back
+                </button>
+                <button type="button" class="btn-primary btn-scale hover-lift" (click)="nextStep()" *ngIf="currentStep < 3">
+                  Next Step
+                </button>
+                <button type="button" class="btn-primary btn-scale hover-lift" (click)="confirmAndPay()" *ngIf="currentStep === 3" [disabled]="isSubmitting">
+                  <span *ngIf="!isSubmitting">Confirm & Pay</span>
+                  <mat-icon *ngIf="isSubmitting" class="spinner">autorenew</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-section stagger-4">
+          <h2 class="section-title sora-font">Parcel History</h2>
+          <app-data-table [columns]="tableColumns" [data]="parcelHistory"></app-data-table>
+        </div>
+      </div>
+
+      <!-- Right Column: Notifications Feed -->
+      <aside class="right-column glass-card stagger-5">
+        <h3 class="sora-font feed-title">Activity Feed</h3>
+        <div class="feed-list">
+          <div class="feed-card in-transit">
+            <mat-icon class="feed-icon">local_shipping</mat-icon>
+            <div class="feed-content">
+              <strong>KE-00123</strong> is out for delivery.<br>
+              <small>10 mins ago</small>
+            </div>
+          </div>
+          <div class="feed-card success">
+            <mat-icon class="feed-icon">check_circle</mat-icon>
+            <div class="feed-content">
+              <strong>KE-00121</strong> was delivered.<br>
+              <small>2 hours ago</small>
+            </div>
+          </div>
+          <div class="feed-card warning">
+            <mat-icon class="feed-icon">storefront</mat-icon>
+            <div class="feed-content">
+              <strong>KE-00119</strong> pending pickup at center.<br>
+              <small>Yesterday, 4:00 PM</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>

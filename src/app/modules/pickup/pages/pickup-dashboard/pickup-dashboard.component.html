@@ -1,0 +1,79 @@
+<div class="dashboard-root pickup-layout">
+  
+  <div class="dashboard-main">
+    <app-navbar></app-navbar>
+
+    <div class="dashboard-content stagger-1">
+      
+      <!-- Top Stats -->
+      <div class="stats-row">
+        <app-stat-card title="Awaiting Pickup" [value]="awaitingCount" icon="inventory_2"></app-stat-card>
+        <app-stat-card title="Checked In Today" [value]="checkedInToday" icon="call_received" [change]="5"></app-stat-card>
+        <app-stat-card title="Checked Out Today" [value]="checkedOutToday" icon="call_made" [change]="12"></app-stat-card>
+        <app-stat-card title="Overdue (>3 days)" [value]="overdueCount" icon="warning" [change]="-1"></app-stat-card>
+      </div>
+
+      <div class="grid-layout">
+        <div class="main-column">
+          
+          <!-- Actions Area -->
+          <div class="actions-row">
+            <!-- Manual Check-In -->
+            <div class="checkin-panel glass-card hover-lift">
+              <h3 class="sora-font">Manual Check-In</h3>
+              <p class="subtitle">Enter tracking number manually</p>
+              <div class="input-group">
+                <mat-icon class="prefix-icon">qr_code_scanner</mat-icon>
+                <input type="text" class="input-glow large-input" placeholder="e.g. KE-1234..." 
+                       [(ngModel)]="checkInId" (keyup.enter)="onCheckIn()">
+                <button class="btn-primary large-btn btn-scale" (click)="onCheckIn()">Check In</button>
+              </div>
+            </div>
+
+            <!-- QR Scanner Placeholder -->
+            <div class="qr-scanner-card glass-card hover-lift">
+              <div class="scanner-frame">
+                <mat-icon class="scan-icon pulse">center_focus_weak</mat-icon>
+                <div class="scan-line"></div>
+              </div>
+              <div class="scanner-text">Scan Barcode / QR</div>
+            </div>
+          </div>
+
+          <!-- Inventory Table -->
+          <div class="inventory-section glass-card">
+            <h2 class="section-title sora-font">Current Inventory</h2>
+            <!-- Note: The TS DataTable component accepts standard data -->
+            <!-- We customize row logic in CSS based on a global class but since data-table is encapsulated, we just show standard table here -->
+            <app-data-table [columns]="tableColumns" [data]="inventory"></app-data-table>
+          </div>
+
+        </div>
+
+        <!-- Activity Log -->
+        <aside class="right-column glass-card overflow-auto">
+          <h3 class="sora-font section-title">Today's Activity</h3>
+          
+          <div class="timeline-feed">
+            <div class="timeline-item slide-in" *ngFor="let event of activities">
+              <div class="timeline-marker" [ngClass]="event.type">
+                <mat-icon>{{ event.type === 'in' ? 'call_received' : 'call_made' }}</mat-icon>
+              </div>
+              <div class="timeline-content">
+                <div class="event-meta">
+                  <span class="time">{{ event.time | date:'shortTime' }}</span>
+                  <app-badge [status]="event.type === 'in' ? 'in-transit' : 'delivered'" [label]="event.action"></app-badge>
+                </div>
+                <div class="event-details">
+                  <strong>{{ event.parcelId }}</strong> by {{ event.staff }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,128 @@
+body {
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+}
+
+// Glassmorphism
+.glass-card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--box-shadow-soft);
+  border-radius: var(--border-radius-card);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: var(--transition-smooth);
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(20, 34, 54, 0.85);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.hover-lift {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--box-shadow-hover);
+  }
+}
+
+.hover-blue {
+  transition: all 0.2s ease !important;
+  &:hover {
+    background: var(--primary) !important;
+    color: white !important;
+    mat-icon { color: white !important; }
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26,107,255,0.3) !important;
+  }
+}
+
+.btn-quick-action {
+  transition: var(--transition-smooth);
+  &:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(26,107,255,0.2);
+  }
+}
+
+.btn-scale {
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.input-glow {
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(26,107,255,0.2);
+    outline: none;
+  }
+}
+
+// Page load animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-1 { animation: fadeInUp 0.6s ease forwards; animation-delay: 0.1s; opacity: 0; }
+.stagger-2 { animation: fadeInUp 0.6s ease forwards; animation-delay: 0.2s; opacity: 0; }
+.stagger-3 { animation: fadeInUp 0.6s ease forwards; animation-delay: 0.3s; opacity: 0; }
+.stagger-4 { animation: fadeInUp 0.6s ease forwards; animation-delay: 0.4s; opacity: 0; }
+.stagger-5 { animation: fadeInUp 0.6s ease forwards; animation-delay: 0.5s; opacity: 0; }
+
+// Skeleton loading shimmer
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--white) 50%, var(--accent) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: var(--border-radius-element);
+}
+
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%);
+}
+
+// Button base
+// Global Dashboard Layout
+.dashboard-root {
+  display: flex;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border-radius: var(--border-radius-element);
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  
+  &:hover {
+    background: var(--navy);
+  }
+}

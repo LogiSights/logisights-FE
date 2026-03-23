@@ -1,0 +1,16 @@
+<div class="stat-card glass-card hover-lift hover-blue">
+  <div class="stat-header">
+    <div class="icon-wrapper">
+      <mat-icon>{{ icon }}</mat-icon>
+    </div>
+    <div class="change-indicator" *ngIf="change !== undefined" [ngClass]="change >= 0 ? 'positive' : 'negative'">
+      <mat-icon>{{ change >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+      <span>{{ change >= 0 ? '+' : '' }}{{ change }}%</span>
+    </div>
+  </div>
+  
+  <div class="stat-content">
+    <div class="stat-value sora-font">{{ displayValue | number }}</div>
+    <div class="stat-title">{{ title }}</div>
+  </div>
+</div>

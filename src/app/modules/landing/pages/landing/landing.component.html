@@ -1,0 +1,150 @@
+<div class="landing-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-texture"></div>
+    <div class="hero-content">
+      <h1 class="hero-title sora-font stagger-1">Logistics, Simplified. Delivered Fast.</h1>
+      <p class="hero-subtitle stagger-2">Track your parcels in real time with our intelligent Logistics platform.</p>
+      
+      <div class="search-card glass-card hover-lift stagger-3">
+        <input id="heroTrackingInput" type="text" class="tracking-input input-glow" placeholder="Enter tracking number..." [(ngModel)]="trackingId" (keyup.enter)="onTrack()">
+        <button class="btn-primary btn-track" (click)="onTrack()">
+          <mat-icon>search</mat-icon> Track
+        </button>
+      </div>
+
+      <div class="trust-badges stagger-4">
+        <div class="badge-item"><mat-icon>check_circle</mat-icon> 10M+ Parcels Delivered</div>
+        <div class="badge-item"><mat-icon>verified</mat-icon> 99.9% Uptime</div>
+        <div class="badge-item"><mat-icon>location_city</mat-icon> 50+ Cities</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Row -->
+  <section class="stats-section">
+    <app-stat-card class="stagger-1" title="Total Deliveries" [value]="10500" icon="inventory_2" [change]="12"></app-stat-card>
+    <app-stat-card class="stagger-2" title="Active Drivers" [value]="450" icon="local_shipping" [change]="5"></app-stat-card>
+    <app-stat-card class="stagger-3" title="Pickup Points" [value]="120" icon="storefront" [change]="2"></app-stat-card>
+    <app-stat-card class="stagger-4" title="On-Time Rate" [value]="98" icon="timer" [change]="1"></app-stat-card>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <h2 class="section-title sora-font">Why Choose LogiSight</h2>
+    <div class="features-grid">
+      <div class="feature-card glass-card hover-lift">
+        <div class="feature-icon"><mat-icon>map</mat-icon></div>
+        <h3 class="sora-font">Real-Time Tracking</h3>
+        <p>Live GPS updates from our drivers direct to your application.</p>
+      </div>
+      <div class="feature-card glass-card hover-lift">
+        <div class="feature-icon"><mat-icon>psychology</mat-icon></div>
+        <h3 class="sora-font">AI Route Forecasting</h3>
+        <p>Optimize delivery paths to ensure packages arrive on schedule.</p>
+      </div>
+      <div class="feature-card glass-card hover-lift">
+        <div class="feature-icon"><mat-icon>dashboard</mat-icon></div>
+        <h3 class="sora-font">Multi-Role Dashboards</h3>
+        <p>Custom tailored views for senders, drivers, and pickup points.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works-section">
+    <h2 class="section-title sora-font">How It Works</h2>
+    <div class="steps-container">
+      <div class="step hover-lift">
+        <div class="step-circle sora-font">1</div>
+        <h4>Book Parcel</h4>
+        <p>Enter details and schedule a pickup.</p>
+      </div>
+      <div class="step hover-lift">
+        <div class="step-circle sora-font">2</div>
+        <h4>Track in Real Time</h4>
+        <p>Follow along via the dashboard map.</p>
+      </div>
+      <div class="step hover-lift">
+        <div class="step-circle sora-font">3</div>
+        <h4>Receive at Door</h4>
+        <p>Instant notification upon delivery.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles section -->
+  <section class="roles-section">
+    <div class="role-card glass-card hover-lift">
+      <div class="role-img sender-bg">
+        <mat-icon>group</mat-icon>
+      </div>
+      <h3 class="sora-font">Sender / Receiver</h3>
+      <ul class="role-list">
+        <li><mat-icon>check</mat-icon> Interactive tracking</li>
+        <li><mat-icon>check</mat-icon> Book new parcels</li>
+        <li><mat-icon>check</mat-icon> Real-time notifications</li>
+      </ul>
+      <button class="btn-primary" routerLink="/login">Get Started</button>
+    </div>
+    
+    <div class="role-card glass-card hover-lift">
+      <div class="role-img driver-bg">
+        <mat-icon>local_shipping</mat-icon>
+      </div>
+      <h3 class="sora-font">Driver</h3>
+      <ul class="role-list">
+        <li><mat-icon>check</mat-icon> Route optimization</li>
+        <li><mat-icon>check</mat-icon> Status updates</li>
+        <li><mat-icon>check</mat-icon> Earnings tracking</li>
+      </ul>
+      <button class="btn-primary" routerLink="/login">Driver Portal</button>
+    </div>
+
+    <div class="role-card glass-card hover-lift">
+      <div class="role-img pickup-bg">
+        <mat-icon>store</mat-icon>
+      </div>
+      <h3 class="sora-font">Pickup Staff</h3>
+      <ul class="role-list">
+        <li><mat-icon>check</mat-icon> QR/Barcode scanning</li>
+        <li><mat-icon>check</mat-icon> Inventory tracking</li>
+        <li><mat-icon>check</mat-icon> Checkout management</li>
+      </ul>
+      <button class="btn-primary" routerLink="/login">Manage Stop</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="brand">
+        <mat-icon>rocket_launch</mat-icon>
+        <span class="sora-font logo-text">LogiSight</span>
+      </div>
+      <div class="footer-links">
+        <div class="link-col">
+          <strong>Product</strong>
+          <a href="#">Features</a>
+          <a href="#">Pricing</a>
+          <a href="#">API Documentation</a>
+        </div>
+        <div class="link-col">
+          <strong>Company</strong>
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2026 LogiSight Logistics. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Floating CTA -->
+  <button class="floating-cta hover-lift btn-scale" (click)="openTrackingModal()">
+    <mat-icon>my_location</mat-icon>
+    Track a Parcel
+  </button>
+</div>

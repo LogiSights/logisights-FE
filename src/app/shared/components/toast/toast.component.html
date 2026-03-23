@@ -1,0 +1,15 @@
+<div class="toast-overlay">
+  <div [@listAnimation]="(toasts$ | async)?.length" class="toast-container">
+    <div *ngFor="let toast of toasts$ | async; let i = index" class="toast-item glass-card" [ngClass]="toast.type">
+      <div class="toast-icon">
+        <mat-icon>{{ getIcon(toast.type) }}</mat-icon>
+      </div>
+      <div class="toast-message">
+        {{ toast.message }}
+      </div>
+      <button class="toast-close" (click)="dismiss(toast.id)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

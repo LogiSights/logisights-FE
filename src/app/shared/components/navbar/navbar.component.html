@@ -1,0 +1,60 @@
+<nav class="navbar glass-card">
+  <div class="navbar-left">
+    <h1 class="page-title sora-font">Dashboard</h1>
+  </div>
+
+  <div class="navbar-center">
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input #searchInput type="text" placeholder="Search parcels, tracking ID... (Press '/')" class="global-search input-glow">
+    </div>
+  </div>
+
+  <div class="navbar-right">
+    <button class="icon-btn btn-scale hover-lift" (click)="toggleDarkMode()">
+      <mat-icon>{{ isDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
+    </button>
+
+    <button class="icon-btn btn-scale hover-lift" [matMenuTriggerFor]="notificationsMenu">
+      <mat-icon [matBadge]="unreadCount" matBadgeColor="warn" [matBadgeHidden]="unreadCount === 0">notifications</mat-icon>
+    </button>
+
+    <mat-menu #notificationsMenu="matMenu">
+      <div class="notification-header">Notifications</div>
+      <button mat-menu-item>
+        <mat-icon color="primary">local_shipping</mat-icon>
+        <span>Parcel KE-00123 out for delivery</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon color="accent">check_circle</mat-icon>
+        <span>Delivery #1093 completed</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon color="warn">warning</mat-icon>
+        <span>Driver #4 pending update</span>
+      </button>
+    </mat-menu>
+
+    <!-- User Menu -->
+    <div class="user-menu" *ngIf="currentUser$ | async as user" [matMenuTriggerFor]="userDropdown">
+      <div class="avatar" *ngIf="user.avatar"><img [src]="user.avatar" alt="Avatar"></div>
+      <div class="avatar default-avatar" *ngIf="!user.avatar">{{ user.name.charAt(0) }}</div>
+    </div>
+
+    <mat-menu #userDropdown="matMenu">
+      <div class="mat-menu-profile">
+        <strong>{{ (currentUser$ | async)?.name }}</strong>
+        <br><small>{{ (currentUser$ | async)?.email }}</small>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</nav>

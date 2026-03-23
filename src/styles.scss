@@ -1,0 +1,38 @@
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+@import 'assets/styles/variables.scss';
+@import 'assets/styles/typography.scss';
+@import 'assets/styles/theme.scss';
+
+// Angular Material global overrides
+html, body { height: 100%; }
+body { margin: 0; font-family: 'IBM Plex Sans', sans-serif; }
+
+@media print {
+  /* Hide navigation elements */
+  app-sidebar, app-navbar, .floating-cta, .toast-container {
+    display: none !important;
+  }
+
+  /* Make main content span full width */
+  .dashboard-main, .driver-content, .dashboard-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Reset backgrounds */
+  body, .glass-card, .dashboard-root {
+    background: white !important;
+    box-shadow: none !important;
+    color: black !important;
+  }
+
+  /* Force page breaks to be sensible */
+  .chart-card, .management-section, .history-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide decorative elements */
+  .overlay-route, .illustration-container { display: none !important; }
+}

@@ -1,0 +1,23 @@
+<aside class="sidebar glass-card" 
+       [class.collapsed]="actualCollapsedState"
+       [@sidebarState]="actualCollapsedState ? 'collapsed' : 'expanded'">
+  <div class="sidebar-header" (click)="toggleSidebar()">
+    <div class="logo-icon">
+      <mat-icon color="primary">rocket_launch</mat-icon>
+    </div>
+    <div class="logo-text sora-font" [style.opacity]="actualCollapsedState ? 0 : 1">
+      LogiSight
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" *ngIf="currentUser$ | async as user">
+    <a *ngFor="let item of getFilteredNavItems(user)"
+       [routerLink]="item.route"
+       routerLinkActive="active"
+       class="nav-item hover-lift">
+      <mat-icon>{{ item.icon }}</mat-icon>
+      <span class="nav-label" [style.opacity]="actualCollapsedState ? 0 : 1">{{ item.label }}</span>
+    </a>
+  </nav>
+
+</aside>

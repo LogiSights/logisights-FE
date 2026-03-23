@@ -1,0 +1,99 @@
+<div class="dashboard-root driver-layout">
+  
+  <div class="dashboard-main">
+    <app-navbar></app-navbar>
+
+    <div class="driver-content">
+      
+      <!-- Driver Top Bar -->
+      <div class="driver-header glass-card stagger-1">
+        <div class="greeting-info">
+          <h2 class="sora-font">Hi, {{ (auth.currentUser$ | async)?.name?.split(' ')?.[0] || 'Driver' }}!</h2>
+          <span class="date">{{ today | date:'mediumDate' }}</span>
+        </div>
+        
+        <div class="status-toggle hover-blue" [class.online]="isOnline" (click)="toggleOnline()">
+          <div class="toggle-pill">
+            <div class="toggle-knob"></div>
+          </div>
+          <span>{{ isOnline ? 'Online' : 'Offline' }}</span>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row stagger-2">
+        <app-stat-card title="Assigned" [value]="tasks.length" icon="assignment"></app-stat-card>
+        <app-stat-card title="Completed" [value]="completedCount" icon="check_circle_outline"></app-stat-card>
+        <app-stat-card title="Pending" [value]="pendingCount" icon="schedule"></app-stat-card>
+        <app-stat-card title="Earnings (Ksh)" [value]="earnings" icon="payments" [change]="10"></app-stat-card>
+      </div>
+
+      <div class="dashboard-grid stagger-3">
+        <!-- Assigned Deliveries -->
+        <div class="deliveries-list glass-card">
+          <h3 class="section-title sora-font">Today's Route</h3>
+          
+          <div class="task-card fade-in" 
+               *ngFor="let task of tasks" 
+               [class.completed]="task.status === 'delivered'">
+            
+            <div class="task-info">
+              <div class="task-header">
+                <strong>{{ task.id }}</strong>
+                <span class="time-window"><mat-icon>schedule</mat-icon> {{ task.timeWindow }}</span>
+              </div>
+              <div class="task-recipient">{{ task.recipientName }}</div>
+              <div class="task-address"><mat-icon>place</mat-icon> {{ task.address }} ({{ task.distance }})</div>
+            </div>
+
+            <div class="task-action">
+              <button class="action-btn btn-scale hover-blue" 
+                      [ngClass]="getButtonClass(task.status)" 
+                      [disabled]="task.status === 'delivered'"
+                      (click)="advanceStatus(task)">
+                <span *ngIf="task.status !== 'delivered'">{{ getButtonLabel(task.status) }}</span>
+                <span *ngIf="task.status === 'delivered'"><mat-icon class="checkmark-pop">check</mat-icon> {{ getButtonLabel(task.status) }}</span>
+              </button>
+              
+              <button class="undo-btn icon-btn hover-blue" 
+                      *ngIf="task.history && task.history.length > 0"
+                      (click)="undoStatus(task)"
+                      matTooltip="Undo last status change">
+                <mat-icon>undo</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map & End of day -->
+        <div class="right-pane">
+          <div class="map-panel glass-card">
+            <div class="map-header">Live Map &mdash; Google Maps API</div>
+            <div class="map-placeholder">
+              <svg viewBox="0 0 400 300" class="overlay-route">
+                <path d="M 50 250 L 100 150 L 250 200 L 350 50" class="route-line" />
+                <circle cx="50" cy="250" r="6" class="node" />
+                <circle cx="100" cy="150" r="6" class="node" />
+                <circle cx="250" cy="200" r="6" class="node" />
+                <circle cx="350" cy="50" r="6" class="node pulse" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- End of Day Summary -->
+          <div class="eod-summary glass-card slide-in-bottom" *ngIf="completedCount >= 5">
+            <h3 class="sora-font section-title">End of Day Summary</h3>
+            <div class="eod-stats">
+              <div class="eod-stat"><span>Deliveries</span><strong>{{ completedCount }} / {{ tasks.length }}</strong></div>
+              <div class="eod-stat"><span>Distance</span><strong>{{ totalDistance }} km</strong></div>
+              <div class="eod-stat highlight"><span>Est. Payout</span><strong>Ksh {{ earnings }}</strong></div>
+            </div>
+            <button class="btn-primary" style="width: 100%">Submit Driver Report</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

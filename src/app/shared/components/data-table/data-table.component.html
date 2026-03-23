@@ -1,0 +1,55 @@
+<div class="table-container glass-card">
+  <div class="table-header">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input class="input-glow" type="text" placeholder="Filter records..." (keyup)="applyFilter($event)">
+    </div>
+  </div>
+
+  <div class="table-scroll-wrapper">
+    <!-- Skeleton Loading -->
+    <table class="data-table skeleton-table" *ngIf="isLoading">
+      <thead>
+        <tr>
+          <th *ngFor="let col of columns">{{ col.label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of skeletonRows">
+          <td *ngFor="let col of columns">
+            <div class="skeleton-cell skeleton"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Real Table -->
+    <table mat-table [dataSource]="dataSource" matSort class="data-table" *ngIf="!isLoading">
+      <ng-container *ngFor="let col of columns" [matColumnDef]="col.key">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.label }} </th>
+        <td mat-cell *matCellDef="let row">
+          
+          <ng-container [ngSwitch]="col.type">
+            <span *ngSwitchCase="'badge'">
+              <app-badge [status]="row[col.key]?.toLowerCase()" [label]="row[col.key]"></app-badge>
+            </span>
+            <span *ngSwitchCase="'action'">
+              <button mat-button color="primary" class="action-btn">View</button>
+            </span>
+            <span *ngSwitchDefault>{{ row[col.key] }}</span>
+          </ng-container>
+
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="interactive-row"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell text-center" [colSpan]="displayedColumns.length">No data matching the filter</td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page"></mat-paginator>
+</div>

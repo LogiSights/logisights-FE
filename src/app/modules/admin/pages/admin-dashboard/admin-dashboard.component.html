@@ -1,0 +1,82 @@
+<div class="dashboard-root admin-layout">
+  <app-sidebar></app-sidebar>
+  
+  <div class="dashboard-main">
+    <app-navbar></app-navbar>
+
+    <div class="dashboard-content">
+      
+      <!-- Top Stats -->
+      <div class="stats-row stagger-1">
+        <app-stat-card title="Total Users" [value]="totalUsers" icon="group" [change]="3.5"></app-stat-card>
+        <app-stat-card title="Active Drivers" [value]="activeDrivers" icon="directions_car" [change]="1.2"></app-stat-card>
+        <app-stat-card title="Parcels Today" [value]="parcelsToday" icon="local_shipping" [change]="8.4"></app-stat-card>
+        <app-stat-card title="Revenue Today" [value]="revenueToday" icon="payments" [change]="4.1"></app-stat-card>
+      </div>
+
+      <div class="charts-section stagger-2">
+        <div class="chart-card glass-card line-chart-container">
+          <h3 class="section-title sora-font">Delivery Volume (30 Days)</h3>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              [data]="lineChartData"
+              [options]="lineChartOptions"
+              [type]="lineChartType"></canvas>
+          </div>
+        </div>
+        
+        <div class="chart-card glass-card">
+          <h3 class="section-title sora-font">Status Breakdown</h3>
+          <div class="chart-wrapper doughnut-wrapper">
+            <canvas baseChart
+              [data]="doughnutChartData"
+              [type]="doughnutChartType"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card">
+          <h3 class="section-title sora-font">Top 5 Cities</h3>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              [type]="barChartType"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-layout stagger-3">
+        <div class="main-column">
+          <!-- User Management Table -->
+          <div class="management-section glass-card">
+            <div class="management-header">
+              <h2 class="section-title sora-font">User Management</h2>
+              <div class="tabs">
+                <button [class.active]="activeTab === 'ALL'" (click)="setTab('ALL')" class="hover-blue">All</button>
+                <button [class.active]="activeTab === 'SENDER'" (click)="setTab('SENDER')" class="hover-blue">Senders</button>
+                <button [class.active]="activeTab === 'DRIVER'" (click)="setTab('DRIVER')" class="hover-blue">Drivers</button>
+                <button [class.active]="activeTab === 'PICKUP'" (click)="setTab('PICKUP')" class="hover-blue">Pickup Points</button>
+              </div>
+            </div>
+            <app-data-table [columns]="userColumns" [data]="getFilteredUsers()"></app-data-table>
+          </div>
+        </div>
+
+        <!-- System Health Sidebar -->
+        <aside class="right-column glass-card">
+          <h3 class="sora-font section-title">System Health</h3>
+          <div class="health-list">
+            <div class="health-item hover-lift" *ngFor="let svc of services">
+              <div class="service-info">
+                <strong>{{ svc.name }}</strong>
+                <small [ngClass]="svc.color">{{ svc.status | titlecase }}</small>
+              </div>
+              <mat-icon [ngClass]="svc.color">{{ svc.icon }}</mat-icon>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</div>
