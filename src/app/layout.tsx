@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AuthProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </AuthProvider>
-        <Toaster richColors closeButton position="top-right" />
+        <Toaster richColors closeButton position="bottom-right" offset={20} duration={5000} />
       </body>
     </html>
   );
