@@ -7,6 +7,7 @@ import {
   Wallet,
   ClipboardList,
   Users,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Stat } from "@/types/models";
@@ -25,6 +26,8 @@ function renderStatIcon(name?: string) {
       return <ClipboardList size={16} aria-hidden="true" />;
     case "Users":
       return <Users size={16} aria-hidden="true" />;
+    case "Gauge":
+      return <Gauge size={16} aria-hidden="true" />;
     default:
       return null;
   }
