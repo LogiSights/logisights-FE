@@ -1,69 +1,60 @@
-# LogiSight - Modern Logistics Platform
+# LogiSight
 
-LogiSight is a comprehensive logistics management platform frontend built with Angular 16. It provides a robust, role-based interface for managing the entire logistics lifecycle, from order initiation to final delivery.
+LogiSight is a logistics management platform for the Kenyan market. It provides role-based interfaces for senders, drivers, pickup agents, and admins, covering the full parcel lifecycle from booking to delivery with real-time status tracking.
 
-## 🚀 Key Features
+## Stack
 
-- **Multi-Role Dashboards**: Tailored interfaces for Admins, Drivers, Senders, and Pickup agents.
-- **Real-time Tracking**: Monitor shipments and vehicle locations (integrated with logistics backend).
-- **Order Management**: Streamlined process for creating and managing logistics orders.
-- **Role-Based Access Control (RBAC)**: Secure routing and feature access managed via Auth Guards.
-- **Interactive Analytics**: Data visualization using Chart.js for logistics performance monitoring.
-- **Responsive Design**: Optimized for various devices using modern CSS and Angular Material.
+- [Next.js](https://nextjs.org) (App Router) with TypeScript
+- [Tailwind CSS](https://tailwindcss.com) with a token-driven theme (light/dark)
+- [shadcn/ui](https://ui.shadcn.com) on top of Radix primitives
+- [lucide-react](https://lucide.dev) for icons
+- [Recharts](https://recharts.org) for analytics charts
+- [Framer Motion](https://motion.dev) for interface and scroll animation
+- [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) for form validation
+- [Sonner](https://sonner.emilkowal.ski) for toasts
 
-## 🛠️ Tech Stack
+## Getting started
 
-- **Framework**: [Angular 16.2.16](https://angular.io/)
-- **UI Components**: [Angular Material](https://material.angular.io/)
-- **Icons**: [Lucide Angular](https://lucide.dev/guide/packages/lucide-angular)
-- **Charts**: [Chart.js](https://www.chartjs.org/) with [ng2-charts](https://valor-software.com/ng2-charts/)
-- **State Management**: RxJS
-- **Styling**: SCSS (Vanilla CSS principles)
-
-## 📁 Project Structure
-
-```text
-src/app/
-├── core/           # Singleton services, guards, and interceptors
-├── shared/         # Reusable components, directives, and pipes
-└── modules/        # Feature-based modules
-    ├── admin/      # Administrative tools
-    ├── auth/       # Authentication (Login/Signup)
-    ├── driver/     # Driver-specific features
-    ├── landing/    # Public landing page
-    ├── pickup/     # Pickup agent features
-    └── sender/     # Sender/Customer features
+```bash
+npm install
+npm run dev
 ```
 
-## 🛠️ Getting Started
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-### Prerequisites
+## Project structure
 
-- [Node.js](https://nodejs.org/) (LTS version recommended)
-- [Angular CLI](https://github.com/angular/angular-cli) installed globally (`npm install -g @angular/cli`)
+```
+src/
+  app/            route segments (marketing, auth, dashboard)
+  components/
+    ui/           design system primitives
+    shared/       navbar, sidebar, data table, stat card, etc.
+    landing/      landing page sections
+    dashboard/    role-specific dashboard widgets
+  lib/
+    auth/         auth context, role/route mapping, storage
+    mock/         seed data for parcels, users, and stats
+    utils.ts
+  types/          shared domain models
+  hooks/          theme, media query, reduced-motion hooks
+```
 
-### Installation
+## Roles
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd LogiSight-FE
-   ```
+| Role   | Route      |
+|--------|------------|
+| Sender | `/sender`  |
+| Driver | `/driver`  |
+| Pickup | `/pickup`  |
+| Admin  | `/admin`   |
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Dashboard routes are gated by role, with the mapping defined in `src/lib/auth/roles.ts`.
 
-### Development Server
+## Scripts
 
-Run `npm run start` or `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-### Build
-
-Run `npm run build` or `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-### Running Tests
-
-Run `npm run test` or `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
+```bash
+npm run dev      # start the dev server
+npm run build    # production build
+npm run lint     # lint the project
+```
