@@ -34,7 +34,9 @@ export function LoginForm() {
   async function handleSuccess(role: Role, name: string) {
     toast.success(`Welcome back, ${name}!`);
     const returnUrl = searchParams.get("returnUrl");
-    router.push(returnUrl && returnUrl.startsWith("/") ? returnUrl : homeForRole(role));
+    const isSafeReturnUrl =
+      !!returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("/\\");
+    router.push(isSafeReturnUrl ? returnUrl : homeForRole(role));
   }
 
   async function onSubmit(values: LoginValues) {
