@@ -3,149 +3,167 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, MapPin, PackageCheck, Truck } from "lucide-react";
+import { ArrowRight, LayoutDashboard, MapPin, Send, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const ORBIT_NODES = [
+  { icon: Send, style: { top: "12%", left: "22%" } },
+  { icon: Truck, style: { top: "34%", left: "6%" } },
+  { icon: MapPin, style: { top: "68%", left: "6%" } },
+  { icon: LayoutDashboard, style: { top: "88%", left: "22%" } },
+];
+
+const AVATAR_INITIALS = ["MW", "JK", "AO"];
 
 const FLOATING_CARDS = [
   {
-    icon: PackageCheck,
+    icon: Send,
     label: "Parcel #LS-88213",
     value: "Delivered · 12:04 PM",
-    className: "left-[4%] top-[18%] lg:left-[8%]",
-    depth: 24,
+    className: "left-[4%] top-[16%] lg:left-[6%]",
   },
   {
     icon: Truck,
     label: "Driver en route",
-    value: "Westlands → CBD",
-    className: "right-[2%] top-[38%] lg:right-[6%]",
-    depth: 40,
+    value: "Westlands to CBD",
+    className: "right-[2%] top-[36%] lg:right-[4%]",
   },
   {
     icon: MapPin,
     label: "Pickup point",
-    value: "Nairobi · Kilimani",
-    className: "left-[10%] bottom-[10%] lg:left-[14%]",
-    depth: 16,
+    value: "Nairobi, Kilimani",
+    className: "left-[10%] bottom-[8%] lg:left-[12%]",
   },
 ];
 
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
+    target: previewRef,
+    offset: ["start end", "end start"],
   });
 
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const midY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.4]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const previewScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.96, 1, 0.94]);
+  const previewOpacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.5, 1, 1, 0.5]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[#0A1526]"
-    >
-      {/* depth-0: far background wash */}
-      <motion.div
-        aria-hidden="true"
-        style={{ y: bgY }}
-        className="pointer-events-none absolute inset-0"
-      >
-        <div
-          className="absolute inset-0 opacity-[0.06] mix-blend-screen"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5'%3E%3Cpath d='M0 30h60M30 0v60'/%3E%3C/g%3E%3C/svg%3E\")",
-          }}
-        />
-      </motion.div>
+    <section className="relative bg-background pt-24 pb-20 sm:pt-28 sm:pb-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid overflow-hidden rounded-[28px] border border-border shadow-xl lg:grid-cols-[minmax(260px,34%)_1fr]">
+          <OrbitPanel />
 
-      {/* depth-1: glow atmosphere */}
-      <motion.div aria-hidden="true" style={{ y: midY }} className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-32 top-1/4 size-[28rem] rounded-full bg-primary/15 blur-[110px]" />
-        <div className="absolute -right-24 top-0 size-[26rem] rounded-full bg-[#4C8DFF]/10 blur-[110px]" />
-      </motion.div>
+          <div className="relative flex flex-col justify-between gap-12 bg-[#0A1526] p-8 sm:p-10 lg:p-12">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-[0.05]"
+              style={{
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='0.5'%3E%3Cpath d='M0 30h60M30 0v60'/%3E%3C/g%3E%3C/svg%3E\")",
+              }}
+            />
 
-      {/* depth-2: route line decoration */}
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden h-full w-full opacity-40 lg:block"
-        viewBox="0 0 1200 800"
-        fill="none"
-      >
-        <path
-          d="M-50 620 C 250 520, 380 720, 600 560 S 950 320, 1250 380"
-          stroke="#4C8DFF"
-          strokeOpacity="0.5"
-          strokeWidth="2"
-          strokeDasharray="2 14"
-          strokeLinecap="round"
-        />
-      </svg>
+            <div className="relative animate-fade-up">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] text-[#8FB8FF] uppercase">
+                <span className="size-1.5 rounded-full bg-[#8FB8FF]" />
+                Real-time logistics
+              </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-28 sm:px-6 lg:px-8">
-        <motion.div
-          style={{ y: textY, opacity: textOpacity }}
-          className="mx-auto max-w-3xl text-center"
-        >
-          <h1 className="animate-fade-up font-heading text-4xl font-semibold tracking-tight text-white [animation-delay:80ms] sm:text-5xl lg:text-6xl">
-            Every parcel, tracked from <span className="text-[#8FB8FF]">booking to doorstep</span>
-          </h1>
+              <h1 className="mt-4 max-w-md font-heading text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.65rem] lg:leading-[1.12]">
+                Every parcel, tracked from booking to delivery
+              </h1>
 
-          <p className="mx-auto mt-6 max-w-xl animate-fade-up text-base leading-relaxed text-white/70 [animation-delay:160ms] sm:text-lg">
-            LogiSight connects senders, drivers, pickup points, and dispatch teams on one
-            operational platform built for Kenya&apos;s logistics networks, real-time status,
-            zero guesswork.
-          </p>
+              <div className="mt-6 flex max-w-sm items-start gap-4">
+                <span className="mt-2 h-px w-10 shrink-0 bg-white/25" />
+                <p className="text-sm leading-relaxed text-white/65">
+                  Optimize your logistics operations from booking to delivery with one connected,
+                  real-time platform built for Kenya&apos;s parcel networks.
+                </p>
+              </div>
 
-          <div className="mt-10 flex animate-fade-up flex-col items-center justify-center gap-3 [animation-delay:240ms] sm:flex-row">
-            <Button
-              size="lg"
-              className="h-11 gap-2 rounded-full px-6 text-sm"
-              nativeButton={false}
-              render={<Link href="/register" />}
-            >
-              Get started free
-              <ArrowRight size={16} aria-hidden="true" />
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              className="h-11 rounded-full px-6 text-sm text-white hover:bg-white/10 hover:text-white"
-              nativeButton={false}
-              render={<a href="#how-it-works" />}
-            >
-              See how it works
-            </Button>
+              <Button
+                size="lg"
+                className="mt-8 h-11 gap-2 rounded-full px-6 text-sm"
+                nativeButton={false}
+                render={<Link href="/register" />}
+              >
+                Get started free
+                <ArrowRight size={16} aria-hidden="true" />
+              </Button>
+            </div>
+
+            <div className="relative flex items-center gap-4 border-t border-white/10 pt-6">
+              <div className="flex -space-x-2.5">
+                {AVATAR_INITIALS.map((initials) => (
+                  <Avatar key={initials} className="border-2 border-[#0A1526]">
+                    <AvatarFallback className="bg-white/10 text-xs font-medium text-white">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">Join 12,500+ parcels tracked</p>
+                <p className="text-xs text-white/50">
+                  Trusted across Nairobi, Mombasa and Kisumu
+                </p>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </div>
+      </div>
 
-        {/* depth-3: product stage with floating status cards */}
+      <div ref={previewRef} className="mx-auto mt-16 max-w-5xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          style={{ scale: heroScale, opacity: heroOpacity }}
-          className="relative mx-auto mt-16 flex w-full max-w-4xl flex-1 items-center justify-center pb-16"
+          style={{ scale: previewScale, opacity: previewOpacity }}
+          className="relative"
         >
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_40px_120px_rgba(0,0,0,0.5)] backdrop-blur-sm">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border bg-[#0A1526] shadow-xl">
             <DashboardPreview />
           </div>
 
-          {FLOATING_CARDS.map(({ icon: Icon, label, value, className, depth }) => (
-            <FloatingCard
-              key={label}
-              icon={Icon}
-              label={label}
-              value={value}
-              className={className}
-              depth={depth}
-            />
+          {FLOATING_CARDS.map(({ icon: Icon, label, value, className }) => (
+            <FloatingCard key={label} icon={Icon} label={label} value={value} className={className} />
           ))}
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function OrbitPanel() {
+  return (
+    <div className="relative hidden min-h-[420px] overflow-hidden bg-muted p-8 lg:flex lg:flex-col lg:justify-end">
+      <div
+        aria-hidden="true"
+        className="absolute top-1/2 left-0 aspect-square w-[150%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-border"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute top-1/2 left-[34%] flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#0A1526] shadow-lg"
+      >
+        <Truck size={22} className="text-white" aria-hidden="true" />
+      </div>
+
+      {ORBIT_NODES.map(({ icon: Icon, style }, i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card shadow-sm"
+          style={style}
+        >
+          <Icon size={16} className="text-primary" aria-hidden="true" />
+        </div>
+      ))}
+
+      <div className="relative">
+        <p className="font-heading text-base font-semibold text-foreground">
+          Unified parcel
+          <br />
+          tracking platform
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -154,18 +172,15 @@ function FloatingCard({
   label,
   value,
   className,
-  depth,
 }: {
   icon: typeof Truck;
   label: string;
   value: string;
   className: string;
-  depth: number;
 }) {
   return (
     <div
-      className={`animate-float absolute z-20 hidden items-center gap-2.5 rounded-[var(--radius-element)] border border-white/10 bg-[#0D1B2A]/90 px-3.5 py-2.5 shadow-xl backdrop-blur-md sm:flex ${className}`}
-      style={{ animationDuration: `${5 + depth / 10}s` }}
+      className={`animate-float absolute z-20 hidden items-center gap-2.5 rounded-[var(--radius-element)] border border-white/10 bg-[#0D1B2A]/95 px-3.5 py-2.5 shadow-xl backdrop-blur-md sm:flex ${className}`}
     >
       <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[#8FB8FF]">
         <Icon size={15} aria-hidden="true" />
@@ -218,11 +233,7 @@ function DashboardPreview() {
             <div className="h-2 w-14 rounded-full bg-white/15" />
             <div className="mt-3 flex items-end gap-1.5">
               {[40, 70, 55, 90, 65].map((h, i) => (
-                <div
-                  key={i}
-                  className="w-full rounded-t bg-[#4C8DFF]/50"
-                  style={{ height: `${h}%` }}
-                />
+                <div key={i} className="w-full rounded-t bg-[#4C8DFF]/50" style={{ height: `${h}%` }} />
               ))}
             </div>
           </div>
