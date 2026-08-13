@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Sora, IBM_Plex_Sans, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const heading = Sora({
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </AuthProvider>
         <Toaster richColors closeButton position="top-right" />
       </body>
     </html>

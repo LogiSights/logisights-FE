@@ -1,19 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+function subscribe(query: string) {
+  return (onStoreChange: () => void) => {
+    const mediaQuery = window.matchMedia(query);
+    mediaQuery.addEventListener("change", onStoreChange);
+    return () => mediaQuery.removeEventListener("change", onStoreChange);
+  };
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    setMatches(mediaQuery.matches);
-    const listener = (event: MediaQueryListEvent) => setMatches(event.matches);
-    mediaQuery.addEventListener("change", listener);
-    return () => mediaQuery.removeEventListener("change", listener);
-  }, [query]);
-
-  return matches;
+  return useSyncExternalStore(
+    subscribe(query),
+    () => window.matchMedia(query).matches,
+    getServerSnapshot
+  );
 }
 
 export function useIsCoarsePointer(): boolean {
