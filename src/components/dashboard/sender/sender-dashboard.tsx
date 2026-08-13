@@ -1,31 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { Package, Search } from "lucide-react";
+import { Package, ArrowUpRight } from "lucide-react";
 import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import {
+  DetailSheet,
+  DetailField,
+  DetailFieldGrid,
+  DetailSection,
+} from "@/components/shared/detail-sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusTimeline } from "./status-timeline";
 import { senderStats } from "@/lib/mock/stats";
 import { mockParcels } from "@/lib/mock/parcels";
 import { TRACKING_STEPS, trackingStepIndex } from "@/lib/sender/tracking";
-import type { Parcel } from "@/types/models";
+import type { Parcel, ParcelStatus } from "@/types/models";
+
+const STATUS_FILTERS: { label: string; value: ParcelStatus | "ALL" }[] = [
+  { label: "All statuses", value: "ALL" },
+  { label: "Pending", value: "PENDING" },
+  { label: "In transit", value: "IN_TRANSIT" },
+  { label: "Delivered", value: "DELIVERED" },
+  { label: "Failed", value: "FAILED" },
+];
 
 export function SenderDashboard() {
-  const router = useRouter();
-  const [trackingQuery, setTrackingQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ParcelStatus | "ALL">("ALL");
+  const [selectedParcel, setSelectedParcel] = useState<Parcel | null>(null);
   const activeParcel = mockParcels.find((parcel) => parcel.status === "IN_TRANSIT");
 
-  function handleTrack(event: React.FormEvent) {
-    event.preventDefault();
-    const query = trackingQuery.trim();
-    if (query) router.push(`/sender/track/${encodeURIComponent(query)}`);
-  }
+  const filteredParcels = useMemo(
+    () =>
+      statusFilter === "ALL"
+        ? mockParcels
+        : mockParcels.filter((parcel) => parcel.status === statusFilter),
+    [statusFilter]
+  );
 
   const columns: DataTableColumn<Parcel>[] = [
     { key: "trackingId", header: "Tracking ID", accessor: (row) => row.trackingId ?? row.id },
@@ -43,13 +64,8 @@ export function SenderDashboard() {
       key: "action",
       header: "",
       accessor: (row) => (
-        <Button
-          size="sm"
-          variant="outline"
-          nativeButton={false}
-          render={<Link href={`/sender/track/${row.trackingId ?? row.id}`} />}
-        >
-          Track
+        <Button size="sm" variant="outline" onClick={() => setSelectedParcel(row)}>
+          Details
         </Button>
       ),
     },
@@ -71,31 +87,13 @@ export function SenderDashboard() {
         ))}
       </div>
 
-      <form onSubmit={handleTrack} className="flex flex-col gap-2 sm:flex-row">
-        <Input
-          value={trackingQuery}
-          onChange={(event) => setTrackingQuery(event.target.value)}
-          placeholder="Track a parcel by tracking ID, e.g. KE-00123"
-          className="sm:max-w-xs"
-        />
-        <Button type="submit" variant="outline" className="gap-1.5">
-          <Search size={16} aria-hidden="true" />
-          Track
-        </Button>
-      </form>
-
       {activeParcel && (
         <div className="rounded-[var(--radius-card)] border border-border bg-card p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-sm font-semibold">
               Active parcel &middot; {activeParcel.trackingId ?? activeParcel.id}
             </h2>
-            <Button
-              size="sm"
-              variant="ghost"
-              nativeButton={false}
-              render={<Link href={`/sender/track/${activeParcel.trackingId ?? activeParcel.id}`} />}
-            >
+            <Button size="sm" variant="ghost" onClick={() => setSelectedParcel(activeParcel)}>
               View details
             </Button>
           </div>
@@ -111,14 +109,83 @@ export function SenderDashboard() {
         <h2 className="mb-3 font-heading text-sm font-semibold">Parcel history</h2>
         <DataTable
           columns={columns}
-          data={mockParcels}
+          data={filteredParcels}
           getRowId={(row) => row.id}
           searchable
           searchPlaceholder="Search by tracking ID or destination"
           searchAccessor={(row) => `${row.trackingId ?? row.id} ${row.destination}`}
-          emptyMessage="No parcels yet."
+          emptyMessage="No parcels match your filters."
+          filters={
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as ParcelStatus | "ALL")}
+            >
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_FILTERS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          }
         />
       </div>
+
+      <DetailSheet
+        open={selectedParcel !== null}
+        onOpenChange={(open) => !open && setSelectedParcel(null)}
+        title={selectedParcel?.trackingId ?? selectedParcel?.id}
+        description="Parcel details"
+      >
+        {selectedParcel && (
+          <>
+            <div className="flex items-center justify-between">
+              <StatusBadge status={selectedParcel.status} />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="gap-1"
+                nativeButton={false}
+                render={
+                  <Link href={`/sender/track/${selectedParcel.trackingId ?? selectedParcel.id}`} />
+                }
+              >
+                Full tracker
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </Button>
+            </div>
+
+            <StatusTimeline
+              steps={TRACKING_STEPS}
+              currentIndex={trackingStepIndex(selectedParcel.status)}
+              failed={selectedParcel.status === "FAILED"}
+            />
+
+            <DetailSection title="Recipient">
+              <DetailFieldGrid>
+                <DetailField label="Name" value={selectedParcel.recipientName} />
+                <DetailField label="Phone" value={selectedParcel.recipientPhone} />
+              </DetailFieldGrid>
+            </DetailSection>
+
+            <DetailSection title="Shipment">
+              <DetailFieldGrid>
+                <DetailField label="Destination" value={selectedParcel.destination} />
+                <DetailField label="City" value={selectedParcel.city} />
+                <DetailField label="Weight" value={`${selectedParcel.weight} kg`} />
+                <DetailField
+                  label="Booked"
+                  value={format(new Date(selectedParcel.dateCreated), "d MMM yyyy")}
+                />
+              </DetailFieldGrid>
+            </DetailSection>
+          </>
+        )}
+      </DetailSheet>
     </div>
   );
 }

@@ -22,6 +22,7 @@ interface DataTableProps<T> {
   searchPlaceholder?: string;
   searchAccessor?: (row: T) => string;
   emptyMessage?: string;
+  filters?: React.ReactNode;
 }
 
 type SortDirection = "asc" | "desc" | null;
@@ -34,6 +35,7 @@ export function DataTable<T>({
   searchPlaceholder = "Search",
   searchAccessor,
   emptyMessage = "No results.",
+  filters,
 }: DataTableProps<T>) {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -75,19 +77,24 @@ export function DataTable<T>({
 
   return (
     <div className="flex flex-col gap-3">
-      {searchable && (
-        <div className="relative w-full sm:max-w-xs">
-          <Search
-            size={16}
-            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={searchPlaceholder}
-            className="pl-8"
-          />
+      {(searchable || filters) && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {searchable && (
+            <div className="relative w-full sm:max-w-xs">
+              <Search
+                size={16}
+                className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={searchPlaceholder}
+                className="pl-8"
+              />
+            </div>
+          )}
+          {filters}
         </div>
       )}
       <div className="overflow-x-auto rounded-[var(--radius-card)] border border-border">

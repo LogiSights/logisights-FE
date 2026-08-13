@@ -7,9 +7,22 @@ import { toast } from "sonner";
 import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import {
+  DetailSheet,
+  DetailField,
+  DetailFieldGrid,
+  DetailSection,
+} from "@/components/shared/detail-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   pickupActivity as initialActivity,
@@ -21,10 +34,24 @@ import {
 
 const OVERDUE_THRESHOLD_DAYS = 3;
 
+const STATUS_FILTERS: { label: string; value: PickupInventoryItem["status"] | "ALL" }[] = [
+  { label: "All statuses", value: "ALL" },
+  { label: "Pending", value: "PENDING" },
+  { label: "Failed", value: "FAILED" },
+];
+
 export function PickupDashboard() {
   const [inventory, setInventory] = useState<PickupInventoryItem[]>(initialInventory);
   const [activity, setActivity] = useState<PickupActivityEvent[]>(initialActivity);
   const [checkInId, setCheckInId] = useState("");
+  const [selectedItem, setSelectedItem] = useState<PickupInventoryItem | null>(null);
+  const [statusFilter, setStatusFilter] = useState<PickupInventoryItem["status"] | "ALL">("ALL");
+
+  const filteredInventory = useMemo(
+    () =>
+      statusFilter === "ALL" ? inventory : inventory.filter((item) => item.status === statusFilter),
+    [inventory, statusFilter]
+  );
 
   const overdueCount = useMemo(
     () => inventory.filter((item) => item.daysWaiting > OVERDUE_THRESHOLD_DAYS).length,
@@ -77,6 +104,7 @@ export function PickupDashboard() {
       ...current,
     ]);
     toast.success(`Parcel ${id} handed over`);
+    setSelectedItem((current) => (current?.id === id ? null : current));
   }
 
   const columns: DataTableColumn<PickupInventoryItem>[] = [
@@ -106,9 +134,14 @@ export function PickupDashboard() {
       key: "action",
       header: "",
       accessor: (row) => (
-        <Button size="sm" variant="outline" onClick={() => handleHandOver(row.id)}>
-          Hand over
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setSelectedItem(row)}>
+            Details
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handleHandOver(row.id)}>
+            Hand over
+          </Button>
+        </div>
       ),
     },
   ];
@@ -147,12 +180,31 @@ export function PickupDashboard() {
         <div className="lg:col-span-2">
           <DataTable
             columns={columns}
-            data={inventory}
+            data={filteredInventory}
             getRowId={(row) => row.id}
             searchable
             searchPlaceholder="Search by tracking ID or recipient"
             searchAccessor={(row) => `${row.id} ${row.recipientName}`}
-            emptyMessage="No parcels awaiting pickup."
+            emptyMessage="No parcels match your filters."
+            filters={
+              <Select
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(value as PickupInventoryItem["status"] | "ALL")
+                }
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_FILTERS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }
           />
         </div>
         <div className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-border bg-card p-4">
@@ -187,6 +239,52 @@ export function PickupDashboard() {
           </ul>
         </div>
       </div>
+
+      <DetailSheet
+        open={selectedItem !== null}
+        onOpenChange={(open) => !open && setSelectedItem(null)}
+        title={selectedItem?.id}
+        description="Parcel details"
+      >
+        {selectedItem && (
+          <>
+            <div className="flex items-center justify-between">
+              <StatusBadge status={selectedItem.status} />
+              <Button size="sm" onClick={() => handleHandOver(selectedItem.id)}>
+                Hand over
+              </Button>
+            </div>
+
+            <DetailSection title="Recipient">
+              <DetailFieldGrid>
+                <DetailField label="Name" value={selectedItem.recipientName} />
+                <DetailField label="Phone" value={selectedItem.phone} />
+              </DetailFieldGrid>
+            </DetailSection>
+
+            <DetailSection title="Pickup">
+              <DetailFieldGrid>
+                <DetailField
+                  label="Arrived"
+                  value={format(new Date(selectedItem.dateArrived), "d MMM yyyy, HH:mm")}
+                />
+                <DetailField
+                  label="Waiting"
+                  value={
+                    <span
+                      className={cn(
+                        selectedItem.daysWaiting > OVERDUE_THRESHOLD_DAYS && "text-destructive"
+                      )}
+                    >
+                      {selectedItem.daysWaiting} day{selectedItem.daysWaiting === 1 ? "" : "s"}
+                    </span>
+                  }
+                />
+              </DetailFieldGrid>
+            </DetailSection>
+          </>
+        )}
+      </DetailSheet>
     </div>
   );
 }
