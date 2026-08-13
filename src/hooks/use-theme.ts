@@ -1,31 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
 const STORAGE_KEY = "logisight_theme";
+const THEME_EVENT = "logisight-theme-change";
+
+function getSnapshot(): Theme {
+  const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
+  if (stored) return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener(THEME_EVENT, onStoreChange);
+  return () => window.removeEventListener(THEME_EVENT, onStoreChange);
+}
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-    const initial = stored ?? preferred;
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  }, []);
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme((current) => {
-      const next = current === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      window.localStorage.setItem(STORAGE_KEY, next);
-      return next;
-    });
+    const next: Theme = getSnapshot() === "dark" ? "light" : "dark";
+    window.localStorage.setItem(STORAGE_KEY, next);
+    window.dispatchEvent(new Event(THEME_EVENT));
   }, []);
 
   return { theme, toggleTheme };

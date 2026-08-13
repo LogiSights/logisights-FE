@@ -4,8 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { Role, User } from "@/types/models";
@@ -22,36 +21,45 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const LOGIN_DELAY_MS = 1500;
+const AUTH_EVENT = "logisight-auth-change";
+const HYDRATED_SENTINEL = Symbol("not-hydrated");
+
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener(AUTH_EVENT, onStoreChange);
+  return () => window.removeEventListener(AUTH_EVENT, onStoreChange);
+}
+
+function notify() {
+  window.dispatchEvent(new Event(AUTH_EVENT));
+}
+
+function getServerSnapshot(): User | null | typeof HYDRATED_SENTINEL {
+  return HYDRATED_SENTINEL;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setUser(readStoredUser());
-    setIsHydrated(true);
-  }, []);
+  const snapshot = useSyncExternalStore(subscribe, readStoredUser, getServerSnapshot);
+  const isHydrated = snapshot !== HYDRATED_SENTINEL;
+  const user = isHydrated ? (snapshot as User | null) : null;
 
   const login = useCallback(async (email: string, role: Role = "SENDER") => {
     const nextUser: User = { id: "u1", name: "Demo User", email, role };
     await new Promise((resolve) => setTimeout(resolve, LOGIN_DELAY_MS));
     writeStoredUser(nextUser);
-    setUser(nextUser);
+    notify();
     return nextUser;
   }, []);
 
   const logout = useCallback(() => {
     clearStoredUser();
-    setUser(null);
+    notify();
   }, []);
 
   const switchRole = useCallback((role: Role) => {
-    setUser((current) => {
-      if (!current) return current;
-      const updated = { ...current, role };
-      writeStoredUser(updated);
-      return updated;
-    });
+    const current = readStoredUser();
+    if (!current) return;
+    writeStoredUser({ ...current, role });
+    notify();
   }, []);
 
   return (
