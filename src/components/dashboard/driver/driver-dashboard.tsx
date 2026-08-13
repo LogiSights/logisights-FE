@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  DetailSheet,
+  DetailField,
+  DetailFieldGrid,
+  DetailSection,
+} from "@/components/shared/detail-sheet";
 import { cn } from "@/lib/utils";
 import {
   driverTasks as initialTasks,
@@ -52,6 +58,8 @@ function nextStatus(status: DeliveryTaskStatus): DeliveryTaskStatus | null {
 export function DriverDashboard() {
   const [isOnline, setIsOnline] = useState(true);
   const [tasks, setTasks] = useState<DeliveryTask[]>(initialTasks);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
 
   const completedCount = useMemo(
     () => tasks.filter((task) => task.status === "DELIVERED").length,
@@ -122,7 +130,16 @@ export function DriverDashboard() {
         {tasks.map((task) => (
           <div
             key={task.id}
-            className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedTaskId(task.id)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setSelectedTaskId(task.id);
+              }
+            }}
+            className="flex cursor-pointer flex-col gap-3 rounded-[var(--radius-card)] border border-border bg-card p-4 text-left transition-colors hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
@@ -156,7 +173,10 @@ export function DriverDashboard() {
                   size="icon-sm"
                   variant="ghost"
                   aria-label="Undo status"
-                  onClick={() => handleUndo(task.id)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleUndo(task.id);
+                  }}
                 >
                   <Undo2 size={16} aria-hidden="true" />
                 </Button>
@@ -164,7 +184,10 @@ export function DriverDashboard() {
               <Button
                 size="sm"
                 disabled={task.status === "DELIVERED"}
-                onClick={() => handleAdvance(task.id)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleAdvance(task.id);
+                }}
               >
                 {NEXT_ACTION_LABEL[task.status]}
               </Button>
@@ -172,6 +195,57 @@ export function DriverDashboard() {
           </div>
         ))}
       </div>
+
+      <DetailSheet
+        open={selectedTask !== null}
+        onOpenChange={(open) => !open && setSelectedTaskId(null)}
+        title={selectedTask?.recipientName}
+        description={selectedTask?.id}
+      >
+        {selectedTask && (
+          <>
+            <div className="flex items-center justify-between">
+              <Badge
+                variant="outline"
+                className={cn("font-medium", STATUS_STYLES[selectedTask.status])}
+              >
+                {STATUS_LABEL[selectedTask.status]}
+              </Badge>
+              <div className="flex items-center gap-2">
+                {selectedTask.history.length > 0 && (
+                  <Button
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Undo status"
+                    onClick={() => handleUndo(selectedTask.id)}
+                  >
+                    <Undo2 size={16} aria-hidden="true" />
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  disabled={selectedTask.status === "DELIVERED"}
+                  onClick={() => handleAdvance(selectedTask.id)}
+                >
+                  {NEXT_ACTION_LABEL[selectedTask.status]}
+                </Button>
+              </div>
+            </div>
+
+            <DetailSection title="Stop details">
+              <DetailFieldGrid>
+                <DetailField label="Address" value={selectedTask.address} />
+                <DetailField label="Time window" value={selectedTask.timeWindow} />
+                <DetailField label="Distance" value={`${selectedTask.distanceKm} km`} />
+                <DetailField
+                  label="Earnings"
+                  value={`Ksh ${EARNINGS_PER_DELIVERY_KSH.toLocaleString()}`}
+                />
+              </DetailFieldGrid>
+            </DetailSection>
+          </>
+        )}
+      </DetailSheet>
     </div>
   );
 }

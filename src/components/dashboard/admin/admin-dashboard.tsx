@@ -19,7 +19,14 @@ import {
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { StatCard } from "@/components/shared/stat-card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import {
+  DetailSheet,
+  DetailField,
+  DetailFieldGrid,
+  DetailSection,
+} from "@/components/shared/detail-sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
@@ -63,6 +70,7 @@ const CHART_TOOLTIP_STYLE = {
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Role | "ALL">("ALL");
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   const filteredUsers = useMemo(
     () => (activeTab === "ALL" ? adminUsers : adminUsers.filter((user) => user.role === activeTab)),
@@ -95,6 +103,15 @@ export function AdminDashboard() {
       sortable: true,
       sortValue: (row) => row.joined,
       accessor: (row) => format(new Date(row.joined), "d MMM yyyy"),
+    },
+    {
+      key: "action",
+      header: "",
+      accessor: (row) => (
+        <Button size="sm" variant="outline" onClick={() => setSelectedUser(row)}>
+          Details
+        </Button>
+      ),
     },
   ];
 
@@ -229,6 +246,41 @@ export function AdminDashboard() {
           emptyMessage="No users found."
         />
       </div>
+
+      <DetailSheet
+        open={selectedUser !== null}
+        onOpenChange={(open) => !open && setSelectedUser(null)}
+        title={selectedUser?.name}
+        description={selectedUser?.email}
+      >
+        {selectedUser && (
+          <>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{selectedUser.role}</Badge>
+              <Badge
+                variant="outline"
+                className={
+                  selectedUser.status === "Active"
+                    ? "bg-success/15 text-success border-success/30"
+                    : "bg-destructive/15 text-destructive border-destructive/30"
+                }
+              >
+                {selectedUser.status}
+              </Badge>
+            </div>
+
+            <DetailSection title="Account">
+              <DetailFieldGrid>
+                <DetailField label="Email" value={selectedUser.email} />
+                <DetailField
+                  label="Joined"
+                  value={format(new Date(selectedUser.joined), "d MMM yyyy")}
+                />
+              </DetailFieldGrid>
+            </DetailSection>
+          </>
+        )}
+      </DetailSheet>
     </div>
   );
 }
