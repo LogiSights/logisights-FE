@@ -2,6 +2,8 @@
 
 LogiSight is a logistics management platform for the Kenyan market. It provides role-based interfaces for senders, drivers, pickup agents, and admins, covering the full parcel lifecycle from booking to delivery with real-time status tracking.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how this frontend fits together with the [logisights-be](https://github.com/LogiSights/logisights-be) API.
+
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router) with TypeScript
@@ -54,7 +56,18 @@ Dashboard routes are gated by role, with the mapping defined in `src/lib/auth/ro
 ## Scripts
 
 ```bash
-npm run dev      # start the dev server
-npm run build    # production build
-npm run lint     # lint the project
+npm run dev            # start the dev server
+npm run build           # production build
+npm run lint             # lint the project
+npm run test              # run the test suite once
+npm run test:watch         # run tests in watch mode
+npm run test:coverage       # run tests with the coverage gate
 ```
+
+## Testing
+
+Unit tests (Vitest + React Testing Library) live alongside the code they cover in `src/lib/**/*.test.ts(x)`. The coverage gate targets `src/lib/**` (the schemas, auth context, storage, and tracking/pricing logic), not presentational components or routes, since that is where the business rules live. Current gate: 90% statements/lines/functions, 85% branches.
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, the test suite with the coverage gate, and a production build on every push and pull request against `main`.
