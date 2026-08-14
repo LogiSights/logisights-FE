@@ -30,10 +30,10 @@ Branch-per-logical-chunk: each unit of work gets its own branch, a PR against `m
 - Toast notifications repositioned (bottom-right) with a 5-second auto-dismiss
 - Slide-in detail panels (matching a reference "order details" pattern) on the primary table/list of every dashboard, built on a shared `DetailSheet` component
 - Status filtering on the sender parcel history table, consolidated to a single search bar (no duplicate search inputs)
+- Public landing page (`/`) with the cinematic/scroll-driven treatment: parallax hero with a live dashboard preview, pinned "how it works" scrub timeline mirroring the real `ParcelStatus` flow, platform feature showcase, trust stats, role-based CTA cards. Built with `framer-motion` (already a project dependency) rather than the epic-design skill's default GSAP/vanilla-HTML template, to stay idiomatic to this Next.js codebase. Mobile fallback disables the pinned scrub section and respects `prefers-reduced-motion`. Flat colors throughout, no gradients or em dashes in copy per design direction.
 
 ### Remaining
 
-- Public landing page with the cinematic/scroll-driven treatment (epic-design skill): hero, pinned "how it works" scrub timeline mirroring the parcel status flow, product-in-context panel, trust stats, role-based CTAs — mobile fallback disables pinned/parallax sections and respects `prefers-reduced-motion`
 - Testing: Vitest + React Testing Library for shared components and auth logic, integration tests for the RBAC guard and booking wizard, a narrow Playwright smoke suite
 - Backend integration is explicitly out of scope for this effort (see `logisights-BE`, planned separately)
 
