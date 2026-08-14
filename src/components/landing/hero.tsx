@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, LayoutDashboard, MapPin, Send, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { MagneticButton } from "@/components/landing/magnetic-button";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const ORBIT_NODES = [
-  { icon: Send, style: { top: "12%", left: "22%" } },
-  { icon: Truck, style: { top: "34%", left: "6%" } },
-  { icon: MapPin, style: { top: "68%", left: "6%" } },
-  { icon: LayoutDashboard, style: { top: "88%", left: "22%" } },
+  { icon: Send, style: { top: "12%", left: "22%" }, live: false },
+  { icon: Truck, style: { top: "34%", left: "6%" }, live: true },
+  { icon: MapPin, style: { top: "68%", left: "6%" }, live: false },
+  { icon: LayoutDashboard, style: { top: "88%", left: "22%" }, live: false },
 ];
 
 const AVATAR_INITIALS = ["MW", "JK", "AO"];
@@ -37,6 +39,18 @@ const FLOATING_CARDS = [
   },
 ];
 
+const HEADLINE_LINES = ["Every parcel,", "tracked from booking", "to delivery"];
+
+const headlineContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+};
+
+const headlineLine = {
+  hidden: { opacity: 0, y: "0.6em" },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
+};
+
 export function Hero() {
   const previewRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -47,13 +61,33 @@ export function Hero() {
   const previewScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.96, 1, 0.94]);
   const previewOpacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.5, 1, 1, 0.5]);
 
+  const prefersReducedMotion = useReducedMotion();
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springRotateX = useSpring(rotateX, { stiffness: 200, damping: 24 });
+  const springRotateY = useSpring(rotateY, { stiffness: 200, damping: 24 });
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (prefersReducedMotion || event.pointerType !== "mouse") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    rotateY.set(x * 6);
+    rotateX.set(y * -6);
+  }
+
+  function handlePointerLeave() {
+    rotateX.set(0);
+    rotateY.set(0);
+  }
+
   return (
     <section className="relative bg-background pt-24 pb-20 sm:pt-28 sm:pb-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid overflow-hidden rounded-[28px] border border-border shadow-xl lg:grid-cols-[minmax(260px,34%)_1fr]">
           <OrbitPanel />
 
-          <div className="relative flex flex-col justify-between gap-12 bg-[#0A1526] p-8 sm:p-10 lg:p-12">
+          <div className="relative flex flex-col justify-between gap-12 bg-navy p-8 sm:p-10 lg:p-12">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-[0.05]"
@@ -63,39 +97,71 @@ export function Hero() {
               }}
             />
 
-            <div className="relative animate-fade-up">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] text-[#8FB8FF] uppercase">
-                <span className="size-1.5 rounded-full bg-[#8FB8FF]" />
+            <div className="relative">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.15em] text-[#8FB8FF] uppercase"
+              >
+                <span className="relative flex size-1.5">
+                  <span className="absolute inset-0 rounded-full bg-[#8FB8FF]" />
+                  <span className="animate-pulse-ring absolute inset-0 rounded-full bg-[#8FB8FF] motion-reduce:hidden" />
+                </span>
                 Real-time logistics
-              </div>
+              </motion.div>
 
-              <h1 className="mt-4 max-w-md font-heading text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.65rem] lg:leading-[1.12]">
-                Every parcel, tracked from booking to delivery
-              </h1>
+              <motion.h1
+                variants={headlineContainer}
+                initial="hidden"
+                animate="show"
+                className="mt-5 max-w-lg font-heading text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-[3.4rem] lg:leading-[1.05]"
+              >
+                {HEADLINE_LINES.map((line, i) => (
+                  <span key={i} className="block overflow-hidden pb-1">
+                    <motion.span variants={headlineLine} className="block">
+                      {line}
+                    </motion.span>
+                  </span>
+                ))}
+              </motion.h1>
 
-              <div className="mt-6 flex max-w-sm items-start gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="mt-6 flex max-w-sm items-start gap-4"
+              >
                 <span className="mt-2 h-px w-10 shrink-0 bg-white/25" />
                 <p className="text-sm leading-relaxed text-white/65">
                   Optimize your logistics operations from booking to delivery with one connected,
                   real-time platform built for Kenya&apos;s parcel networks.
                 </p>
-              </div>
+              </motion.div>
 
-              <Button
-                size="lg"
-                className="mt-8 h-11 gap-2 rounded-full px-6 text-sm"
-                nativeButton={false}
-                render={<Link href="/register" />}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
               >
-                Get started free
-                <ArrowRight size={16} aria-hidden="true" />
-              </Button>
+                <MagneticButton>
+                  <Button
+                    size="lg"
+                    className="mt-8 h-11 gap-2 rounded-full px-6 text-sm"
+                    nativeButton={false}
+                    render={<Link href="/register" />}
+                  >
+                    Get started free
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Button>
+                </MagneticButton>
+              </motion.div>
             </div>
 
             <div className="relative flex items-center gap-4 border-t border-white/10 pt-6">
               <div className="flex -space-x-2.5">
                 {AVATAR_INITIALS.map((initials) => (
-                  <Avatar key={initials} className="border-2 border-[#0A1526]">
+                  <Avatar key={initials} className="border-2 border-navy">
                     <AvatarFallback className="bg-white/10 text-xs font-medium text-white">
                       {initials}
                     </AvatarFallback>
@@ -117,10 +183,19 @@ export function Hero() {
         <motion.div
           style={{ scale: previewScale, opacity: previewOpacity }}
           className="relative"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
         >
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border bg-[#0A1526] shadow-xl">
+          <motion.div
+            style={{
+              rotateX: springRotateX,
+              rotateY: springRotateY,
+              transformPerspective: 1200,
+            }}
+            className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border bg-navy shadow-xl"
+          >
             <DashboardPreview />
-          </div>
+          </motion.div>
 
           {FLOATING_CARDS.map(({ icon: Icon, label, value, className }) => (
             <FloatingCard key={label} icon={Icon} label={label} value={value} className={className} />
@@ -140,18 +215,23 @@ function OrbitPanel() {
       />
       <div
         aria-hidden="true"
-        className="absolute top-1/2 left-[34%] flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#0A1526] shadow-lg"
+        className="absolute top-1/2 left-[34%] flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-navy shadow-lg"
       >
         <Truck size={22} className="text-white" aria-hidden="true" />
       </div>
 
-      {ORBIT_NODES.map(({ icon: Icon, style }, i) => (
+      {ORBIT_NODES.map(({ icon: Icon, style, live }, i) => (
         <div
           key={i}
           aria-hidden="true"
           className="absolute flex size-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card shadow-sm"
           style={style}
         >
+          {live ? (
+            <span className="absolute inset-0 -z-10 flex items-center justify-center">
+              <span className="animate-pulse-ring absolute size-10 rounded-full bg-primary/40 motion-reduce:hidden" />
+            </span>
+          ) : null}
           <Icon size={16} className="text-primary" aria-hidden="true" />
         </div>
       ))}
@@ -180,7 +260,7 @@ function FloatingCard({
 }) {
   return (
     <div
-      className={`animate-float absolute z-20 hidden items-center gap-2.5 rounded-[var(--radius-element)] border border-white/10 bg-[#0D1B2A]/95 px-3.5 py-2.5 shadow-xl backdrop-blur-md sm:flex ${className}`}
+      className={`animate-float absolute z-20 hidden items-center gap-2.5 rounded-[var(--radius-element)] border border-white/10 bg-navy/95 px-3.5 py-2.5 shadow-xl backdrop-blur-md sm:flex ${className}`}
     >
       <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[#8FB8FF]">
         <Icon size={15} aria-hidden="true" />
@@ -223,7 +303,7 @@ function DashboardPreview() {
                 style={{ opacity: 1 - i * 0.18 }}
               >
                 <div className="h-2 w-24 rounded-full bg-white/15" />
-                <div className="h-2 w-14 rounded-full bg-[#4C8DFF]/40" />
+                <div className="h-2 w-14 rounded-full bg-primary/40" />
               </div>
             ))}
           </div>
@@ -233,7 +313,7 @@ function DashboardPreview() {
             <div className="h-2 w-14 rounded-full bg-white/15" />
             <div className="mt-3 flex items-end gap-1.5">
               {[40, 70, 55, 90, 65].map((h, i) => (
-                <div key={i} className="w-full rounded-t bg-[#4C8DFF]/50" style={{ height: `${h}%` }} />
+                <div key={i} className="w-full rounded-t bg-primary/50" style={{ height: `${h}%` }} />
               ))}
             </div>
           </div>

@@ -1,9 +1,11 @@
+import { ChapterBand } from "@/components/landing/chapter-band";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { PlatformShowcase } from "@/components/landing/platform-showcase";
 import { RoleCtas } from "@/components/landing/role-ctas";
+import { RouteTicker } from "@/components/landing/route-ticker";
 import { TrustStats } from "@/components/landing/trust-stats";
 
 export default function Home() {
@@ -12,8 +14,10 @@ export default function Home() {
       <LandingNav />
       <main className="flex flex-1 flex-col">
         <Hero />
+        <RouteTicker />
         <TrustStats />
         <HowItWorks />
+        <ChapterBand />
         <PlatformShowcase />
         <RoleCtas />
       </main>

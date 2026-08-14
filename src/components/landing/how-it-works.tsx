@@ -50,6 +50,7 @@ export function HowItWorks() {
   });
 
   const progressScale = useTransform(scrollYProgress, [0.08, 0.92], [0, 1]);
+  const leadPosition = useTransform(scrollYProgress, [0.08, 0.92], ["0%", "100%"]);
 
   return (
     <section
@@ -63,7 +64,7 @@ export function HowItWorks() {
             <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase">
               How it works
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="mt-3 font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
               One parcel, one status, four roles watching
             </h2>
             <p className="mt-4 text-base text-muted-foreground">
@@ -76,11 +77,18 @@ export function HowItWorks() {
             {/* connecting rail */}
             <div className="absolute left-6 top-2 bottom-2 w-px bg-border lg:left-1/2 lg:right-0 lg:top-1/2 lg:bottom-auto lg:h-px lg:w-full lg:-translate-x-1/2 lg:-translate-y-1/2">
               {!prefersReducedMotion && (
-                <motion.div
-                  aria-hidden="true"
-                  style={{ scaleX: progressScale, scaleY: progressScale }}
-                  className="h-full w-full origin-left bg-primary lg:origin-left"
-                />
+                <>
+                  <motion.div
+                    aria-hidden="true"
+                    style={{ scaleX: progressScale, scaleY: progressScale }}
+                    className="h-full w-full origin-left bg-primary lg:origin-left"
+                  />
+                  <motion.div
+                    aria-hidden="true"
+                    style={{ left: leadPosition }}
+                    className="absolute top-1/2 z-10 hidden size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_0_6px_rgba(26,107,255,0.15)] lg:block"
+                  />
+                </>
               )}
             </div>
 
