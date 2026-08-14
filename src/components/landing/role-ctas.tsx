@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, LayoutDashboard, MapPinned, Send, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/landing/magnetic-button";
 
 const ROLES = [
   {
@@ -49,7 +50,8 @@ export function RoleCtas() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: i * 0.07, ease: "easeOut" }}
-              className="group relative flex flex-col rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-lg"
+              whileHover={{ y: -4 }}
+              className="group relative flex flex-col rounded-[var(--radius-card)] border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-xl"
             >
               <span
                 className="flex size-11 items-center justify-center rounded-[var(--radius-element)] bg-primary/10 text-primary"
@@ -69,24 +71,28 @@ export function RoleCtas() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button
-            size="lg"
-            className="h-11 gap-2 rounded-full px-6 text-sm"
-            nativeButton={false}
-            render={<Link href="/register" />}
-          >
-            Create your account
-            <ArrowRight size={16} aria-hidden="true" />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-11 rounded-full px-6 text-sm"
-            nativeButton={false}
-            render={<Link href="/login" />}
-          >
-            Sign in
-          </Button>
+          <MagneticButton>
+            <Button
+              size="lg"
+              className="h-11 gap-2 rounded-full px-6 text-sm"
+              nativeButton={false}
+              render={<Link href="/register" />}
+            >
+              Create your account
+              <ArrowRight size={16} aria-hidden="true" />
+            </Button>
+          </MagneticButton>
+          <MagneticButton>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-11 rounded-full px-6 text-sm"
+              nativeButton={false}
+              render={<Link href="/login" />}
+            >
+              Sign in
+            </Button>
+          </MagneticButton>
         </div>
       </div>
     </section>

@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { BarChart3, Bell, MapPinned, ShieldCheck } from "lucide-react";
+import { CountUp } from "@/components/landing/count-up";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const FEATURES = [
   {
@@ -31,6 +33,26 @@ const FEATURES = [
 ];
 
 export function PlatformShowcase() {
+  const prefersReducedMotion = useReducedMotion();
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springRotateX = useSpring(rotateX, { stiffness: 200, damping: 24 });
+  const springRotateY = useSpring(rotateY, { stiffness: 200, damping: 24 });
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (prefersReducedMotion || event.pointerType !== "mouse") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    rotateY.set(x * 5);
+    rotateX.set(y * -5);
+  }
+
+  function handlePointerLeave() {
+    rotateX.set(0);
+    rotateY.set(0);
+  }
+
   return (
     <section id="platform" className="relative overflow-hidden bg-muted/40 py-24 sm:py-32">
       <div
@@ -86,13 +108,24 @@ export function PlatformShowcase() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="relative"
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
           >
-            <div className="relative rounded-2xl border border-border bg-card p-2 shadow-xl">
+            <motion.div
+              style={{
+                rotateX: springRotateX,
+                rotateY: springRotateY,
+                transformPerspective: 1200,
+              }}
+              className="relative rounded-2xl border border-border bg-card p-2 shadow-xl"
+            >
               <AdminMockup />
-            </div>
+            </motion.div>
             <div className="absolute -bottom-6 -left-6 hidden rounded-[var(--radius-element)] border border-border bg-card px-4 py-3 shadow-lg sm:block">
               <p className="text-[11px] font-medium text-muted-foreground">Success rate</p>
-              <p className="font-heading text-lg font-semibold text-[#22C55E]">96.4%</p>
+              <p className="font-heading text-lg font-semibold text-success">
+                <CountUp value={96.4} suffix="%" decimals={1} />
+              </p>
             </div>
           </motion.div>
         </div>
@@ -113,13 +146,13 @@ function AdminMockup() {
       </div>
       <div className="mt-5 grid grid-cols-3 gap-3">
         {[
-          { label: "Total parcels", value: "1,284", color: "#4C8DFF" },
-          { label: "Active drivers", value: "32", color: "#4ADE80" },
-          { label: "Revenue", value: "942K", color: "#FBBF24" },
+          { label: "Total parcels", value: "1,284", className: "text-[#8FB8FF]" },
+          { label: "Active drivers", value: "32", className: "text-success" },
+          { label: "Revenue", value: "942K", className: "text-warning" },
         ].map((stat) => (
           <div key={stat.label} className="rounded-lg border border-white/10 bg-white/[0.04] p-3">
             <p className="text-[10px] text-white/50">{stat.label}</p>
-            <p className="mt-1 font-heading text-sm font-semibold" style={{ color: stat.color }}>
+            <p className={`mt-1 font-heading text-sm font-semibold ${stat.className}`}>
               {stat.value}
             </p>
           </div>
@@ -130,7 +163,7 @@ function AdminMockup() {
           {[35, 55, 40, 70, 60, 90, 75].map((h, i) => (
             <div key={i} className="flex-1">
               <div
-                className="rounded-t bg-[#4C8DFF]"
+                className="rounded-t bg-[#8FB8FF]"
                 style={{ height: `${h}px` }}
               />
             </div>
